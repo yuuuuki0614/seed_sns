@@ -1,3 +1,42 @@
+<?php
+session_start();
+
+    $nick_name = htmlspecialchars($_SESSION['join']['nick_name']);
+    //   if ($nick_name == '') {
+    //     $nick_name_result = 'ニックネームが入力されていません。';
+    //   } else {
+    //     $nick_name_result = 'ようこそ' . $nick_name .'様';
+    //   }
+    // echo '<br>';
+
+    $email=htmlspecialchars($_SESSION['join']['email']);
+    //   if ($email == '') {
+    //     $email_result = 'メールアドレスが入力されていません。';
+    //   } else {
+    //     $email_result = 'メールアドレス：' . $email;
+    //   }
+    // echo '<br>';
+
+    // $content=htmlspecialchars($_POST['content']);
+    //   if ($content == '') {
+    //     $content_result = 'お問い合わせ内容が入力されていません。';
+    //   } else {
+    //     $content_result = 'お問い合わせ内容：' . $content;
+    //   }
+    // echo '<br>';
+
+
+
+
+
+
+
+
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -8,11 +47,11 @@
     <title>SeedSNS</title>
 
     <!-- Bootstrap -->
-    <link href="../../assets/css/bootstrap.css" rel="stylesheet">
-    <link href="../../assets/font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link href="../../assets/css/form.css" rel="stylesheet">
-    <link href="../../assets/css/timeline.css" rel="stylesheet">
-    <link href="../../assets/css/main.css" rel="stylesheet">
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+    <link href="../assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="../assets/css/form.css" rel="stylesheet">
+    <link href="../assets/css/timeline.css" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
     <!--
       designフォルダ内では2つパスの位置を戻ってからcssにアクセスしていることに注意！
      -->
@@ -52,11 +91,11 @@
                 <!-- 登録内容を表示 -->
                 <tr>
                   <td><div class="text-center">ニックネーム</div></td>
-                  <td><div class="text-center">Seed kun</div></td>
+                  <td><div class="text-center"><?php echo $nick_name; ?></div></td>
                 </tr>
                 <tr>
                   <td><div class="text-center">メールアドレス</div></td>
-                  <td><div class="text-center">seed@nex.com</div></td>
+                  <td><div class="text-center"><?php echo $email; ?></div></td>
                 </tr>
                 <tr>
                   <td><div class="text-center">パスワード</div></td>
@@ -78,8 +117,8 @@
   </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="../../assets/js/jquery-3.1.1.js"></script>
-    <script src="../../assets/js/jquery-migrate-1.4.1.js"></script>
-    <script src="../../assets/js/bootstrap.js"></script>
+    <script src="../assets/js/jquery-3.1.1.js"></script>
+    <script src="../assets/js/jquery-migrate-1.4.1.js"></script>
+    <script src="../assets/js/bootstrap.js"></script>
   </body>
 </html>
