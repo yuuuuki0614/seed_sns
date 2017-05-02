@@ -19,6 +19,17 @@ if(!empty($_POST)){
     $error['password']='length';
   }
 
+  //確認用password(同じかチェック)
+  if($_POST['password']==''){
+    $error['password']='notsame';
+  }
+  // elseif (strlen($_POST['password'])<4) {
+  //   $error['password']='length';
+  // }
+
+
+
+
   //画像ファイルの拡張子チェック（$_FILES）
   $fileName = $_FILES['picture_path']['name'];
   //’picture_path’は下記のnameと同じ。
@@ -185,6 +196,22 @@ if(!empty($_POST)){
               <?php } ?>
             </div>
           </div>
+
+          <!-- 確認用パスワード -->
+          <div class="form-group">
+            <label class="col-sm-4 control-label">確認用パスワード</label>
+            <div class="col-sm-8">
+              <input type="password" name="password" class="form-control" placeholder="">
+              <?php if(isset($error['password']) && $error['password']=='notsame'){ ?>
+              <p class="error">* passwordが違います</p>
+              <?php } ?>
+
+              <!-- <?php if(isset($error['password']) && $error['password']=='length'){ ?> -->
+              <!-- <p class="error">* passwordは4文字以上で入力してください</p> -->
+              <?php } ?>
+            </div>
+          </div>
+
           <!-- プロフィール写真 -->
           <div class="form-group">
             <label class="col-sm-4 control-label">プロフィール写真</label>
