@@ -2,12 +2,15 @@
 session_start();
 //ここの情報はPOST送信されてないからPOSTは使えない。（index.phpで結果をもう一度index.phpを読み込んでから、check.phpに移動するようになっている。。コメントはsession_startより後に書く！！
 
+//dbconnect.phpを読み込む
+require('../dbconnect.php');
+
+
 //セッションにデータがなかったらindex.phpへ遷移するようにする。
 if (!isset($_SESSION['join'])) { //joinが存在してなかったら。
-  header('Location: index.php'); //遷移先。
+  header("Location: index.php"); //遷移先。
   exit(); //下記はやらずここで終了の意味。（index.phpに移動するが処理が続けられるので移動できずにエラーになることがある）
 }
-
 
 
     $nick_name = htmlspecialchars($_SESSION['join']['nick_name'], ENT_QUOTES, 'UTF-8');
@@ -32,7 +35,23 @@ if (!isset($_SESSION['join'])) { //joinが存在してなかったら。
     $picture_path = htmlspecialchars($_SESSION['join']['picture_path'], ENT_QUOTES, 'UTF-8');
     //ファイル名にも危ない文字が入ってるかもしれないのでサニタイジングしておく。
 
+    //DB登録処理
+    if (!empty($_POST)) {
+      $sql = sprintf('INSERT INTO `members` (`nick_name`, `email`, `password`, `picture_path`, `created`, `modified`) VALUES ("%s", "%s", "%s", "%s", now(), now());',
+        mysqli_real_escape_string($db,$_SESSION['join']['nick_name']),
+        mysqli_real_escape_string($db,$_SESSION['join']['email']),
+        mysqli_real_escape_string($db,$_SESSION['join']['password']),
+        mysqli_real_escape_string($db,$_SESSION['join']['picture_path'])
+        );
+      //insert文の原型をphpMyAdminから持ってくると楽。「`member_id`, 」「NULL,」を消す。「日付」のところと「CURRENT_TIMESTAMP」をnow()に変える。「sprintf()」を頭につける。さらにこうすることで、「,」で区切った前と後ろを同じ順で当て込める。適当に入れた「'aaaaaaaa'」とかを４つとも消して「"%s"」(＝何か入るよ。色々加えたいので直では書いていない。)に置き換える。
+      //$_SESSIONの前に「mysqli_real_escape_string()」をつけてdbををサニタイジングする。サニタイズしたい文字を指定するので、まとめて書けない。
 
+      //dbを実行する。
+      mysqli_query($db, $sql) or die(mysqli_error($db));
+      //うまくいったら移動する処理を書く。
+      header("Location: thanks.php");
+      exit();
+    }
 
 
 
@@ -127,9 +146,10 @@ if (!isset($_SESSION['join'])) { //joinが存在してなかったら。
                 </tr>
               </tbody>
             </table>
-
-            <a href="index.html">&laquo;&nbsp;書き直す</a> |
+            <!-- ?action=rewriteをつけることで見分けをつくようにしてから戻る（URLが少し変わる）＝GET送信する！これがGET送信であるということは決まりなので覚えとくしかない、、。 -->
+            <a href="index.php?action=rewrite">&laquo;&nbsp;書き直す</a>
             <input type="submit" class="btn btn-default" value="会員登録">
+            <!-- formタグのmethod="post" action=""で、post送信するようになっていて、同じページに戻る(?)ようになっている。-->
           </div>
         </form>
       </div>

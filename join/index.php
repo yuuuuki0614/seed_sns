@@ -56,18 +56,21 @@ if(!empty($_POST)){
           //ファイル名の頭に日時を入れて被らないようにする。
           //一時的な場所に一時的な名前で保存されるのでtmp_name.
           //その後ろは保存していきたい場所を指定。（ファイルを作成し、権限をつける必要がある→everyoneも読み書き）
+          //$_FILES＝$_POSTに似ているが、POST送信した時にユーザーの情報が入る専用？
       //セッションに値を保存
-      $_SESSION['join'] = $_POST;
+      $_SESSION['join'] = $_POST;//formタグで「method="post"」があるから、nicknameとemailとpassの３つの値に関しては自動的に「$_POST」に格納されている。それを$_SESSIONのjoinに格納。
       $_SESSION['join']['picture_path'] = $picture_path;
-          //保存するよ。
+          //画像だけは「method="post"」の中にあっても自動的に「$_FIlES」に格納されてしまうので、それを新たに先頭に日時とかを入れて「$picture_path」に格納する。それを、さらにさらに$_SESSIONのjoinの中の(?)['picture_path']に入れる？？？
       header('Location: check.php');
   }
-
-
 }
 
-
-//$_FILES＝$_POSTに似ているが、POST送信した時にユーザーの情報が入る専用？
+//「書き直し」はPOSTとかされてないので（1回$_SESSIONに入れてしまっているのでそれを利用する。何度も書かずに済むように(?)）「}」より下に書く。
+if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'rewrite') { //$_REUESTは$_GETと同じ。check.phpの書き直すボタンのところで「index.php?action=rewrite」と書いたやつ。
+    $_POST = $_SESSION['join']; //$_POSTは読み取りじゃなく代入も可能(?)。下の書いたやつを利用する。
+    $error['rewrite'] = true;
+    //この１文を書くことで画像改めて指定のコメントだけがうまい具合に出る。
+}
 
 
 
