@@ -67,7 +67,7 @@ if(!empty($_POST)){
 }
 
 
-
+//$_FILES＝$_POSTに似ているが、POST送信した時にユーザーの情報が入る専用？
 
 
 
@@ -221,6 +221,10 @@ if(!empty($_POST)){
               <?php if(isset($error['picture_path']) && $error['picture_path']=='type'){ ?>
               <p class="error">*写真は「.gif」「.jpg」「.png」の画像を指定してください。</p>
               <?php } ?>
+              <!-- nicknameやemailのように戻っても表示させるのは結構大変なので、もう一度指定してもらうように誘導する -->
+              <?php if (!empty($error)): ?>
+                <p class="error">* 恐れ入りますが、画像を改めて指定してください。</p>
+              <?php endif; ?>
             </div>
           </div>
 

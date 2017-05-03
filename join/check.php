@@ -1,7 +1,18 @@
 <?php
 session_start();
+//ここの情報はPOST送信されてないからPOSTは使えない。（index.phpで結果をもう一度index.phpを読み込んでから、check.phpに移動するようになっている。。コメントはsession_startより後に書く！！
 
-    $nick_name = htmlspecialchars($_SESSION['join']['nick_name']);
+//セッションにデータがなかったらindex.phpへ遷移するようにする。
+if (!isset($_SESSION['join'])) { //joinが存在してなかったら。
+  header('Location: index.php'); //遷移先。
+  exit(); //下記はやらずここで終了の意味。（index.phpに移動するが処理が続けられるので移動できずにエラーになることがある）
+}
+
+
+
+    $nick_name = htmlspecialchars($_SESSION['join']['nick_name'], ENT_QUOTES, 'UTF-8');
+    //  ←「,ENT_QUOTES, 'UTF-8'」つけといた方が無難。
+
     //   if ($nick_name == '') {
     //     $nick_name_result = 'ニックネームが入力されていません。';
     //   } else {
@@ -9,16 +20,17 @@ session_start();
     //   }
     // echo '<br>';
 
-    $email=htmlspecialchars($_SESSION['join']['email']);
+    $email=htmlspecialchars($_SESSION['join']['email'], ENT_QUOTES, 'UTF-8');
     //   if ($email == '') {
     //     $email_result = 'メールアドレスが入力されていません。';
     //   } else {
     //     $email_result = 'メールアドレス：' . $email;
     //   }
-    // echo '<br>';
+    // echo '<br>'
 
 
-    $picture_path = htmlspecialchars($_SESSION['join']['picture_path']);
+    $picture_path = htmlspecialchars($_SESSION['join']['picture_path'], ENT_QUOTES, 'UTF-8');
+    //ファイル名にも危ない文字が入ってるかもしれないのでサニタイジングしておく。
 
 
 
