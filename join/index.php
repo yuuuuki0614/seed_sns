@@ -61,7 +61,7 @@ if(!empty($_POST)){
       $_SESSION['join'] = $_POST;//formタグで「method="post"」があるから、nicknameとemailとpassの３つの値に関しては自動的に「$_POST」に格納されている。それを$_SESSIONのjoinに格納。
       $_SESSION['join']['picture_path'] = $picture_path;
           //画像だけは「method="post"」の中にあっても自動的に「$_FIlES」に格納されてしまうので、それを新たに先頭に日時とかを入れて「$picture_path」に格納する。それを、さらにさらに$_SESSIONのjoinの中の(?)['picture_path']に入れる？？？
-      header('Location: check.php');
+      header("Location: check.php");
   }
 }
 
@@ -148,11 +148,10 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'rewrite') { //$_REUEST
               <!-- <input type="text" name="nick_name" class="form-control" placeholder="例： Seed kun"> -->
               <?php if (isset($_POST['nick_name'])): ?>
                     <input type="text" name="nick_name" class="form-control" placeholder="例： Seed kun" value="<?php echo htmlspecialchars($_POST['nick_name'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <!-- 「ENT_QUOTES」はsingke''もdouble""も認識？。文字指定はDBに送信の途中で文字化けしたら嫌なので念のため指定。 -->
+                    <!-- 「ENT_QUOTES」はsingle''もdouble""も認識？。文字指定はDBに送信の途中で文字化けしたら嫌なので念のため指定。 -->
               <?php else: ?>
                     <input type="text" name="nick_name" class="form-control" placeholder="例： Seed kun" value="">
               <?php endif; ?>
-
 
 
               <?php if(isset($error['nick_name']) && $error['nick_name']=='blank'){ ?>

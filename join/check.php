@@ -40,11 +40,14 @@ if (!isset($_SESSION['join'])) { //joinが存在してなかったら。
       $sql = sprintf('INSERT INTO `members` (`nick_name`, `email`, `password`, `picture_path`, `created`, `modified`) VALUES ("%s", "%s", "%s", "%s", now(), now());',
         mysqli_real_escape_string($db,$_SESSION['join']['nick_name']),
         mysqli_real_escape_string($db,$_SESSION['join']['email']),
-        mysqli_real_escape_string($db,$_SESSION['join']['password']),
+        mysqli_real_escape_string($db,sha1($_SESSION['join']['password'])),
         mysqli_real_escape_string($db,$_SESSION['join']['picture_path'])
         );
-      //insert文の原型をphpMyAdminから持ってくると楽。「`member_id`, 」「NULL,」を消す。「日付」のところと「CURRENT_TIMESTAMP」をnow()に変える。「sprintf()」を頭につける。さらにこうすることで、「,」で区切った前と後ろを同じ順で当て込める。適当に入れた「'aaaaaaaa'」とかを４つとも消して「"%s"」(＝何か入るよ。色々加えたいので直では書いていない。)に置き換える。
-      //$_SESSIONの前に「mysqli_real_escape_string()」をつけてdbををサニタイジングする。サニタイズしたい文字を指定するので、まとめて書けない。
+      //insert文の原型をphpMyAdminから持ってくると楽。「`member_id`, 」「NULL,」を消す。「日付」のところと「CURRENT_TIMESTAMP」をnow()に変える。「sprintf()」を頭につける(文の書式を整える)。さらにこうすることで、「,」で区切った前と後ろを同じ順で当て込める。適当に入れた「'aaaaaaaa'」とかを４つとも消して「"%s"」(＝何か入るよ(文字列を代入)。サニタイジングとか色々加えたいので直では書いていない。)に置き換える。
+      //$_SESSIONの前に「mysqli_real_escape_string()」をつけてdbををサニタイジングする(MySQLで使用する特殊文字をエスケープ)。サニタイズしたい文字を指定するので、まとめて書けない。
+      //$_SESSION['join']['password']を「sha1」(暗号化)で囲む。→phpMyAdminのpasswordにやたら長い文字が表示される。
+
+
 
       //dbを実行する。
       mysqli_query($db, $sql) or die(mysqli_error($db));
