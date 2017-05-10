@@ -50,9 +50,22 @@
         header("Location: index.php");//書かなくてもいいのに、自分のページにリダイレクトする理由。＝再読み込み時にPOST送信が発生しなくなる！
         exit();
 
-      }
-
     }
+
+  }
+
+  //投稿を取得する
+  // $sql = 'SELECT * FROM `tweets`'; //データを一覧で取り出すシンプルな文。
+  $sql = 'SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id`';
+  // $stmt = $dbh->prepare($sql);これは使わないのかな？
+  // $stmt->execute();これなんだっけ？
+  $tweets = mysqli_query($db, $sql) or die(mysqli_error($db));
+
+  $tweets_array = array();
+  while ($tweet = mysqli_fetch_assoc($tweets)) {
+    $tweets_array[] = $tweet;
+  }
+
 
 ?>
 
@@ -129,62 +142,28 @@
       </div>
 
       <div class="col-md-8 content-margin-top">
+        <!-- ここでつぶやいた内容を繰り返し表示する -->
+        <?php foreach ($tweets_array as $tweet_each) { ?>
+
         <div class="msg">
           <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48">
           <p>
-            つぶやき４<span class="name"> (Seed kun) </span>
+            <?php echo $tweet_each['tweet']; ?><!-- つぶやき４(1〜3は要らないので消す) -->
+            <span class="name">
+            (<?php echo $tweet_each['nick_name']; ?>)<!-- (Seed kun) -->
+            </span>
             [<a href="#">Re</a>]
           </p>
           <p class="day">
             <a href="view.php">
-              2016-01-28 18:04
+              <?php echo $tweet_each['created']; ?><!-- 2016-01-28 18:04 -->
             </a>
             [<a href="#" style="color: #00994C;">編集</a>]
             [<a href="#" style="color: #F33;">削除</a>]
           </p>
         </div>
-        <div class="msg">
-          <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48">
-          <p>
-            つぶやき３<span class="name"> (Seed kun) </span>
-            [<a href="#">Re</a>]
-          </p>
-          <p class="day">
-            <a href="view.php">
-              2016-01-28 18:03
-            </a>
-            [<a href="#" style="color: #00994C;">編集</a>]
-            [<a href="#" style="color: #F33;">削除</a>]
-          </p>
-        </div>
-        <div class="msg">
-          <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48">
-          <p>
-            つぶやき２<span class="name"> (Seed kun) </span>
-            [<a href="#">Re</a>]
-          </p>
-          <p class="day">
-            <a href="view.php">
-              2016-01-28 18:02
-            </a>
-            [<a href="#" style="color: #00994C;">編集</a>]
-            [<a href="#" style="color: #F33;">削除</a>]
-          </p>
-        </div>
-        <div class="msg">
-          <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48">
-          <p>
-            つぶやき１<span class="name"> (Seed kun) </span>
-            [<a href="#">Re</a>]
-          </p>
-          <p class="day">
-            <a href="view.php">
-              2016-01-28 18:01
-            </a>
-            [<a href="#" style="color: #00994C;">編集</a>]
-            [<a href="#" style="color: #F33;">削除</a>]
-          </p>
-        </div>
+        <?php } ?>
+
       </div>
 
     </div>
