@@ -1,4 +1,5 @@
 <?php
+    session_start();
     require('dbconnect.php');
 
     //自動ログイン処理(login成功した後にするのでpasswordは必ず入力されている)
