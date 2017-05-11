@@ -55,7 +55,7 @@
   }
 
   //投稿を取得する
-  // $sql = 'SELECT * FROM `tweets`'; //データを一覧で取り出すシンプルな文。
+  // $sql = 'SELECT * FROM `tweets`'; ←←データを一覧で取り出すシンプルな文。
   $sql = 'SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id`';
   // $stmt = $dbh->prepare($sql);これは使わないのかな？
   // $stmt->execute();これなんだっけ？
@@ -64,6 +64,17 @@
   $tweets_array = array();
   while ($tweet = mysqli_fetch_assoc($tweets)) {
     $tweets_array[] = $tweet;
+  }
+
+  //返信の場合（GET送信されてるresから値を取ってくる）
+  if (isset($_REQUEST['res'])) {
+    //返信元のデータ（つぶやきとニックネーム）を取得する   ここっここここここここここここここ
+    $sql = 'SELECT `tweets`.`tweet`,`members`.`nick_name` FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['res'];
+    $reply = mysqli_query($db, $sql) or die(mysqli_error($db));
+    $reply_table = mysqli_fetch_assoc($reply);
+
+    //[@ニックネーム つぶやき]という文字列をセットする
+    $reply_post = '@'.$reply_table['nick_name'].' '.$reply_table['tweet'];
   }
 
 
@@ -128,7 +139,13 @@
             <div class="form-group">
               <label class="col-sm-4 control-label">つぶやき</label>
               <div class="col-sm-8">
-                <textarea name="tweet" cols="50" rows="5" class="form-control" placeholder="例：Hello World!"></textarea>
+                <!-- ここにresがある時の表示をする -->
+                <?php if (isset($reply_post)){ ?>
+                    <textarea name="tweet" cols="50" rows="5" class="form-control" placeholder="例：Hello World!"><?php echo $reply_post; ?></textarea>
+                    <input type="hidden" name="reply_tweet_id" value="<?php echo $_REQUEST['res']; ?>">
+                <?php }else{ ?>
+                    <textarea name="tweet" cols="50" rows="5" class="form-control" placeholder="例：Hello World!"></textarea>
+                <?php } ?>
               </div>
             </div>
           <ul class="paging">
@@ -146,13 +163,14 @@
         <?php foreach ($tweets_array as $tweet_each) { ?>
 
         <div class="msg">
-          <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48">
+          <!-- <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="48" height="48"> -->
+          <img src="member_picture/<?php echo $tweet_each['picture_path']; ?>" width="48" height="48">
           <p>
             <?php echo $tweet_each['tweet']; ?><!-- つぶやき４(1〜3は要らないので消す) -->
             <span class="name">
             (<?php echo $tweet_each['nick_name']; ?>)<!-- (Seed kun) -->
             </span>
-            [<a href="#">Re</a>]
+            [<a href="index.php?res=<?php echo $tweet_each['tweet_id']; ?>">Re</a>]
           </p>
           <p class="day">
             <a href="view.php">
