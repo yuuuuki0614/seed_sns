@@ -173,7 +173,7 @@
             [<a href="index.php?res=<?php echo $tweet_each['tweet_id']; ?>">Re</a>]
           </p>
           <p class="day">
-            <a href="view.php">
+            <a href="view.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>">
               <?php echo $tweet_each['created']; ?><!-- 2016-01-28 18:04 -->
             </a>
             [<a href="#" style="color: #00994C;">編集</a>]

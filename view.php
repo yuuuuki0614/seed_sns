@@ -1,3 +1,41 @@
+<?php
+  session_start();
+
+  require('dbconnect.php');
+
+
+
+  if (isset($_REQUEST['tweet_id'])) {
+    //返信元のデータ（つぶやきとニックネーム）を取得する
+    $sql = 'SELECT `tweets`.`tweet_id`,`members`.`nick_name`, `members`.`picture_path`, `tweets`.`tweet`, `tweets`.`created` FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['tweet_id'];
+    $reply = mysqli_query($db, $sql) or die(mysqli_error($db));
+    $reply_table = mysqli_fetch_assoc($reply);
+
+    //[@ニックネーム つぶやき]という文字列をセットする
+    // $reply_post = '@'.$reply_table['nick_name'].' '.$reply_table['tweet'];
+  }
+
+
+
+
+
+ ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -43,14 +81,14 @@
     <div class="row">
       <div class="col-md-4 col-md-offset-4 content-margin-top">
         <div class="msg">
-          <img src="http://c85c7a.medialib.glogster.com/taniaarca/media/71/71c8671f98761a43f6f50a282e20f0b82bdb1f8c/blog-images-1349202732-fondo-steve-jobs-ipad.jpg" width="100" height="100">
-          <p>投稿者 : <span class="name"> Seed kun </span></p>
+          <img src="member_picture/<?php echo $reply_table['picture_path']; ?>" width="100" height="100">
+          <p>投稿者 : <span class="name"> <?php echo $reply_table['nick_name']; ?>さん </span></p>
           <p>
             つぶやき : <br>
-            つぶやき４つぶやき４つぶやき４
+            <?php echo $reply_table['tweet']; ?>
           </p>
           <p class="day">
-            2016-01-28 18:04
+            <?php echo $reply_table['created']; ?><!-- 2016-01-28 18:04 -->
             [<a href="#" style="color: #F33;">削除</a>]
           </p>
         </div>
