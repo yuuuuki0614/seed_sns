@@ -35,9 +35,15 @@
     //補足：つぶやきが空っぽじゃない時だけ、INSERTする
     if (!empty($_POST['tweet'])) {
 
-        $tweet = htmlspecialchars($_POST['tweet'], ENT_QUOTES, 'UTF-8');
+        // $tweet = htmlspecialchars($_POST['tweet'], ENT_QUOTES, 'UTF-8');この長いのを簡潔にかくとこうなる↓↓
+        $tweet = h($_POST['tweet']);
         $login_member_id = $_SESSION['login_member_id'];
-        $reply_tweet_id = 0;
+
+        if (isset($_POST['reply_tweet_id'])) {
+          $reply_tweet_id = $_POST['reply_tweet_id'];
+        }else{
+          $reply_tweet_id = 0;
+        }
 
         $sql = sprintf('INSERT INTO `tweets` (`tweet`, `member_id`, `reply_tweet_id`, `created`, `modified`) VALUES ("%s", "%s", "%s", now(), now());',
           mysqli_real_escape_string($db,$tweet),
@@ -56,7 +62,7 @@
 
   //投稿を取得する
   // $sql = 'SELECT * FROM `tweets`'; ←←データを一覧で取り出すシンプルな文。
-  $sql = 'SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id`';
+  $sql = 'SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` ORDER BY `created` DESC';
   // $stmt = $dbh->prepare($sql);これは使わないのかな？
   // $stmt->execute();これなんだっけ？
   $tweets = mysqli_query($db, $sql) or die(mysqli_error($db));
@@ -76,6 +82,12 @@
     //[@ニックネーム つぶやき]という文字列をセットする
     $reply_post = '@'.$reply_table['nick_name'].' '.$reply_table['tweet'];
   }
+
+  function h($input_value){//「h」:自分で作った関数、「($input_value)」:引数。
+    return htmlspecialchars($input_value, ENT_QUOTES, 'UTF-8');
+  }//return ○○ :戻り値
+  //上か下にまとめて書き、実行したい箇所で呼び出す感じ。
+  //他のページで使いたければ、「require('dbconnect.php');」みたいな感じで読み込めば可能？
 
 
 ?>
@@ -176,6 +188,9 @@
             <a href="view.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>">
               <?php echo $tweet_each['created']; ?><!-- 2016-01-28 18:04 -->
             </a>
+            <?php if ($tweet_each['reply_tweet_id'] > 0) { ?>
+            | <a href="view.php?tweet_id=<?php echo $tweet_each['reply_tweet_id']; ?>">返信元のつぶやき</a>
+            <?php } ?>
             [<a href="#" style="color: #00994C;">編集</a>]
             [<a href="#" style="color: #F33;">削除</a>]
           </p>

@@ -6,8 +6,11 @@
 
 
   if (isset($_REQUEST['tweet_id'])) {
-    //返信元のデータ（つぶやきとニックネーム）を取得する
-    $sql = 'SELECT `tweets`.`tweet_id`,`members`.`nick_name`, `members`.`picture_path`, `tweets`.`tweet`, `tweets`.`created` FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['tweet_id'];
+    // 返信元のデータ（つぶやきとニックネーム）を取得する
+    // $sql = 'SELECT `tweets`.`tweet_id`,`members`.`nick_name`, `members`.`picture_path`, `tweets`.`tweet`, `tweets`.`created` FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['tweet_id'];
+
+    $sql = 'SELECT `members`.`nick_name`, `members`.`picture_path`, `tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['tweet_id'];//SELECT
+
     $reply = mysqli_query($db, $sql) or die(mysqli_error($db));
     $reply_table = mysqli_fetch_assoc($reply);
 
