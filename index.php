@@ -60,10 +60,48 @@
 
   }
 
+  //ページング処理（投稿を取得するの上に）
+
+  //0.ページ番号を取得する（ある場合はGET送信で送られる、ない場合は常に1ページ目と認識する）
+  $page = '';
+  //GET送信されてきたページ番号を取得
+  if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+  }
+  //ないときは1ページ目
+  if ($page == '') {
+    $page = 1;
+  }
+
+  //1.表示する正しいページの数値を設定する（Min）//悪い人が「-10」頁とかを防ぐ。
+  $page = max($page,1);
+
+  //2.必要なページ数を計算する
+  //１ページに表示する行数
+  $row = 5;
+  $sql = 'SELECT COUNT(*) as cnt FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `tweets`.`created` DESC';//結合した上で取ってくるのが正確。
+  $record_cnt = mysqli_query($db, $sql) or die(mysqli_error($db));
+
+  $table_cnt = mysqli_fetch_assoc($record_cnt);
+  //ceil()：小数点切り上げする関数
+  $maxPage = ceil($table_cnt['cnt'] / $row);
+  
+  //3.表示する正しいページ数の数値を設定する（Max）
+  $page = min($page,$maxPage);
+
+  //4.ページに表示する件数だけ取得する
+  $start = ($page -1) * $row;
+
+
+
+
+
+
+
   //投稿を取得する
   // $sql = 'SELECT * FROM `tweets`'; ←←データを一覧で取り出すシンプルな文。
   //削除機能「WHERE `delete_flag`=0」を加える。
-  $sql = 'SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `created` DESC';
+  $sql = sprintf('SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `created` DESC LIMIT %d, %d', $start, $row);
   // $stmt = $dbh->prepare($sql);これは使わないのかな？
   // $stmt->execute();これなんだっけ？
   $tweets = mysqli_query($db, $sql) or die(mysqli_error($db));
@@ -159,19 +197,43 @@
                 <?php }else{ ?>
                     <textarea name="tweet" cols="50" rows="5" class="form-control" placeholder="例：Hello World!"></textarea>
                 <?php } ?>
+
               </div>
             </div>
           <ul class="paging">
             <input type="submit" class="btn btn-info" value="つぶやく">
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <li><a href="index.php" class="btn btn-default">前</a></li>
+                <li>
+                  <?php if ($page > 1) { ?>
+                  <a href="index.php?page=<?php echo $page-1; ?>" class="btn btn-default">前</a>
+                  <?php }else{ ?>
+                    前
+                  <?php } ?>
+                </li>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
-                <li><a href="index.php" class="btn btn-default">次</a></li>
+                <li>
+                  <?php if ($page < $maxPage) { ?>
+                  <a href="index.php?page=<?php echo $page+1; ?>" class="btn btn-default">次</a>
+                  <?php }else{ ?>
+                    次
+                  <?php } ?>
+                </li>
           </ul>
         </form>
       </div>
 
       <div class="col-md-8 content-margin-top">
+
+        <!-- 検索ボックス -->
+        <!-- どちらもPOST送信可能だが、わかりやすいよう今回はget送信で。 -->
+        <form action="" method="get" class="form-horizontal">
+          <input type="text" name="search_word">
+          <input type="submit" class="btn btn-success btn-xs" value="検索">
+        </form>
+
+
+
+
         <!-- ここでつぶやいた内容を繰り返し表示する -->
         <?php foreach ($tweets_array as $tweet_each) { ?>
 

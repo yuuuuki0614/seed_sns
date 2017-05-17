@@ -1,6 +1,7 @@
 <?php
+    unset($_SESSION['join']);
     //会員登録が済んだのでSESSION変数に保存していた入力値を削除する。
-    unset($_SESSION['join']);//thxページにいくと同時に削除される。
+    //thxページにいくと同時に削除される。
  ?>
 
 

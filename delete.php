@@ -15,6 +15,7 @@
 
     mysqli_query($db, $sql) or die(mysqli_error($db));
     header("Location: index.php");
+    exit();
 
     //[@ニックネーム つぶやき]という文字列をセットする
     // $reply_post = '@'.$reply_table['nick_name'].' '.$reply_table['tweet'];

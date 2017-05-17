@@ -11,8 +11,8 @@
 
     $sql = 'SELECT `members`.`nick_name`, `members`.`picture_path`, `tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `tweet_id` = '.$_REQUEST['tweet_id'];//SELECT
 
-    $reply = mysqli_query($db, $sql) or die(mysqli_error($db));
-    $reply_table = mysqli_fetch_assoc($reply);
+    $tweets = mysqli_query($db, $sql) or die(mysqli_error($db));
+    $tweet_each = mysqli_fetch_assoc($tweets);
 
     //[@ニックネーム つぶやき]という文字列をセットする
     // $reply_post = '@'.$reply_table['nick_name'].' '.$reply_table['tweet'];
@@ -84,15 +84,17 @@
     <div class="row">
       <div class="col-md-4 col-md-offset-4 content-margin-top">
         <div class="msg">
-          <img src="member_picture/<?php echo $reply_table['picture_path']; ?>" width="100" height="100">
-          <p>投稿者 : <span class="name"> <?php echo $reply_table['nick_name']; ?>さん </span></p>
+          <img src="member_picture/<?php echo $tweet_each['picture_path']; ?>" width="100" height="100">
+          <p>投稿者 : <span class="name"> <?php echo $tweet_each['nick_name']; ?>さん </span></p>
           <p>
             つぶやき : <br>
-            <?php echo $reply_table['tweet']; ?>
+            <?php echo $tweet_each['tweet']; ?>
           </p>
           <p class="day">
-            <?php echo $reply_table['created']; ?><!-- 2016-01-28 18:04 -->
-            [<a href="#" style="color: #F33;">削除</a>]
+            <?php echo $tweet_each['created']; ?><!-- 2016-01-28 18:04 -->
+            <?php if ($_SESSION['login_member_id'] == $tweet_each['member_id']) { ?>
+            [<a href="delete.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>" style="color: #F33;">削除</a>]
+            <?php } ?>
           </p>
         </div>
         <a href="index.php">&laquo;&nbsp;一覧へ戻る</a>
