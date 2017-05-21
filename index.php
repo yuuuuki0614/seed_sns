@@ -79,7 +79,13 @@
   //2.必要なページ数を計算する
   //１ページに表示する行数
   $row = 5;
-  $sql = 'SELECT COUNT(*) as cnt FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `tweets`.`created` DESC';//結合した上で取ってくるのが正確。
+  //（キーワードで検索された場合）を追加。//「delete_flag`=0」は0だけ表示したい。
+  if (isset($_GET['search_word']) && !empty($_GET['search_word'])) {
+    $sql = sprintf('SELECT COUNT(*) as cnt FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 AND `tweet` LIKE "%%%s%%" ORDER BY `tweets`.`created` DESC', mysqli_real_escape_string($db,$_GET['search_word']));//結合した上で取ってくるのが正確。
+  }else{
+    $sql = 'SELECT COUNT(*) as cnt FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `tweets`.`created` DESC';
+  }
+
   $record_cnt = mysqli_query($db, $sql) or die(mysqli_error($db));
 
   $table_cnt = mysqli_fetch_assoc($record_cnt);
@@ -99,9 +105,17 @@
 
 
   //投稿を取得する
+  //（キーワードで検索された場合）
+  //「WHERE `delete_flag`=0」の後ろに「AND `tweet` LIKE "%%%s%%"」追加。
+  //お尻の「$start, $row);」の前に「$_GET['search_word']」追加、サニタイズ。
+  if (isset($_GET['search_word']) && !empty($_GET['search_word'])) {
+    $sql = sprintf('SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 AND `tweet` LIKE "%%%s%%" ORDER BY `created` DESC LIMIT %d, %d',mysqli_real_escape_string($db,$_GET['search_word']),$start, $row);
+  }else{//（検索されてない場合）
   // $sql = 'SELECT * FROM `tweets`'; ←←データを一覧で取り出すシンプルな文。
   //削除機能「WHERE `delete_flag`=0」を加える。
   $sql = sprintf('SELECT `members`.`nick_name`,`members`.`picture_path`,`tweets`.* FROM `tweets` INNER JOIN `members` on `tweets`.`member_id` = `members`.`member_id` WHERE `delete_flag`=0 ORDER BY `created` DESC LIMIT %d, %d', $start, $row);
+  }
+
   // $stmt = $dbh->prepare($sql);これは使わないのかな？
   // $stmt->execute();これなんだっけ？
   $tweets = mysqli_query($db, $sql) or die(mysqli_error($db));
@@ -203,9 +217,17 @@
           <ul class="paging">
             <input type="submit" class="btn btn-info" value="つぶやく">
                 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                <?php
+                  $word = '';
+                  if (isset($_GET['search_word']) && !empty($_GET['search_word'])) {
+                    $word = '&search_word='.$_GET['search_word'];
+                  }
+                ?>
+
                 <li>
                   <?php if ($page > 1) { ?>
-                  <a href="index.php?page=<?php echo $page-1; ?>" class="btn btn-default">前</a>
+                  <a href="index.php?page=<?php echo $page-1; ?><?php echo $word; ?>" class="btn btn-default">前</a>
                   <?php }else{ ?>
                     前
                   <?php } ?>
@@ -213,7 +235,7 @@
                 &nbsp;&nbsp;|&nbsp;&nbsp;
                 <li>
                   <?php if ($page < $maxPage) { ?>
-                  <a href="index.php?page=<?php echo $page+1; ?>" class="btn btn-default">次</a>
+                  <a href="index.php?page=<?php echo $page+1; ?><?php echo $word; ?>" class="btn btn-default">次</a>
                   <?php }else{ ?>
                     次
                   <?php } ?>
