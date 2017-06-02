@@ -33,7 +33,7 @@
   //DB登録処理
   if (!empty($_POST)) {
     //補足：つぶやきが空っぽじゃない時だけ、INSERTする
-    if (!empty($_POST['tweet'])) {
+    if (!empty($_POST['tweet'])) {//ここもしかして要らない？
 
         // $tweet = htmlspecialchars($_POST['tweet'], ENT_QUOTES, 'UTF-8');この長いのを簡潔にかくとこうなる↓↓
         $tweet = h($_POST['tweet']);
@@ -91,7 +91,7 @@
   $table_cnt = mysqli_fetch_assoc($record_cnt);
   //ceil()：小数点切り上げする関数
   $maxPage = ceil($table_cnt['cnt'] / $row);
-  
+
   //3.表示する正しいページ数の数値を設定する（Max）
   $page = min($page,$maxPage);
 
@@ -122,8 +122,42 @@
 
   $tweets_array = array();
   while ($tweet = mysqli_fetch_assoc($tweets)) {
+    //$tweetには$tweet['tweet_id']が含まれている
+    //：0か1のフラグのSELECT文を書く。$tweets_array[]に入れたい（カラムを増やす）
+    //いいね機能の実装のための処理
+    $sql = 'SELECT COUNT(*) as `like_flag` FROM `likes` WHERE `tweet_id` = '.$tweet['tweet_id'].' AND `member_id` ='.$_SESSION['login_member_id'];
+
+    $likes = mysqli_query($db, $sql) or die(mysqli_error($db));
+    $like = mysqli_fetch_assoc($likes);
+
+
+    //いいね数の取得
+    // $sql = 'SELECT COUNT(*)as `like_count` FROM `likes` WHERE `tweet_id` =50';
+    $sql = 'SELECT COUNT(*)as `like_count` FROM `likes` WHERE `tweet_id` ='.$tweet['tweet_id'];
+    $likes_cnt = mysqli_query($db, $sql) or die(mysqli_error($db));
+    $like_cnt = mysqli_fetch_assoc($likes_cnt);//どうしたらいいかよくわからないデータで来るから、それをphpで扱いやすい配列の形にして代入
+
+
+
+    // echo '<pre>';//pre＝このままの行で表示。本当は<br>した方がいい。
+    // var_dump('記事のID');
+    // var_dump($tweet['tweet_id']);
+    // var_dump('ログインした人がlikeしているかどうが');
+    // var_dump($like);
+    // echo '</pre>';
+
+
+    $tweet['like_flag'] = $like['like_flag'];//SELECT COUNT(*) as `like_flag`で別名をつけている。
+    $tweet['like_count'] = $like_cnt['like_count'];//SELECT COUNT(*) as `like_count`で別名をつけている。
+
     $tweets_array[] = $tweet;
   }
+
+  // echo '<pre>';//「}」の後に書く！
+  // var_dump($tweets_array);
+  // echo '</pre>';
+
+
 
   //返信の場合（GET送信されてるresから値を取ってくる）
   if (isset($_REQUEST['res'])) {
@@ -172,28 +206,7 @@
 
   </head>
   <body>
-  <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-          <!-- Brand and toggle get grouped for better mobile display -->
-          <div class="navbar-header page-scroll">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="index.php"><span class="strong-title"><i class="fa fa-twitter-square"></i> Seed SNS</span></a>
-          </div>
-          <!-- Collect the nav links, forms, and other content for toggling -->
-          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="nav navbar-nav navbar-right">
-                <li><a href="logout.php">ログアウト</a></li>
-              </ul>
-          </div>
-          <!-- /.navbar-collapse -->
-      </div>
-      <!-- /.container-fluid -->
-  </nav>
+  <?php include('nav.php'); ?>
 
   <div class="container">
     <div class="row">
@@ -268,7 +281,30 @@
             (<?php echo $tweet_each['nick_name']; ?>)<!-- (Seed kun) -->
             </span>
             [<a href="index.php?res=<?php echo $tweet_each['tweet_id']; ?>">Re</a>]
+
+
+
+            <?php if ($tweet_each['like_count'] == !0){; ?>
+              <!-- <small>いいね数:1</small> -->
+              <small><i class="fa fa-thumbs-up"></i>:<?php echo $tweet_each['like_count']; ?></small>
+            <?php } ?>
+
+
+
+            <?php if ($tweet_each['like_flag'] == 1){
+                //すでにいいねされているので、「いいねを取り消す」を表示。（phpの中にコメントを書くとhtmlのソースの表示では見えない！）
+              ; ?>
+                <a href="unlike.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>"><small>いいねを取り消す</small></a>
+            <?php }else{
+                //まだいいねされていないので、「いいね」 を表示。（いいね＆取り消すは逆でも可。）
+            ?>
+                <a href="like.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>"><small>いいね！</small></a>
+            <?php } ?>
           </p>
+
+
+
+
           <p class="day">
             <a href="view.php?tweet_id=<?php echo $tweet_each['tweet_id']; ?>">
               <?php echo $tweet_each['created']; ?><!-- 2016-01-28 18:04 -->
